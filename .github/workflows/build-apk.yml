@@ -49,14 +49,14 @@ jobs:
         flutter build appbundle --release --no-shrink
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: zingify-release-apk
         path: build/app/outputs/flutter-apk/app-release.apk
         retention-days: 30
 
     - name: Upload App Bundle
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: zingify-release-aab
         path: build/app/outputs/bundle/release/app-release.aab
@@ -73,7 +73,7 @@ jobs:
         cat build-info.md
 
     - name: Upload Build Info
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-info
         path: build-info.md
@@ -107,14 +107,14 @@ jobs:
         ./gradlew bundleRelease
 
     - name: Upload Gradle APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: zingify-gradle-apk
         path: android/app/build/outputs/apk/release/app-release.apk
         retention-days: 30
 
     - name: Upload Gradle AAB
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: zingify-gradle-aab
         path: android/app/build/outputs/bundle/release/app-release.aab
