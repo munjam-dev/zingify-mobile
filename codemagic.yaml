@@ -5,7 +5,7 @@ workflows:
   build-android:
     name: Build Android APK
     environment:
-      flutter: 3.22.0
+      flutter: stable
       java: 17
       xcode: latest
       android_studio: latest
@@ -16,9 +16,6 @@ workflows:
       - name: Accept Android licenses
         script: |
           yes | flutter doctor --android-licenses
-      - name: Install Android SDK components
-        script: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - name: Clean and Build APK
         script: |
           flutter clean
