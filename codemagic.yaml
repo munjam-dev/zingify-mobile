@@ -1,0 +1,19 @@
+# Codemagic Configuration for Zingify App
+name: Zingify App Build
+
+workflows:
+  build-android:
+    name: Build Android APK
+    environment:
+      flutter: stable
+      xcode: latest
+      android_studio: latest
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter pub get
+      - name: Build APK
+        script: |
+          flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
