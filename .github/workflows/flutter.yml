@@ -11,60 +11,70 @@ jobs:
 
     env:
       JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ Fix Node.js warning + compatibility
+      # ✅ Fix future Node issue (not required but clean)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # ✅ Java (Required for Gradle)
-      - name: Setup Java 17
+      # ✅ Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # ✅ Flutter Setup
+      # ✅ Flutter (UPGRADED TO FIX COMPATIBILITY)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'
+          flutter-version: '3.22.0'
           cache: true
 
-      # ✅ Verify environment
+      # 🔥 CRITICAL FIX (Android SDK + licenses)
+      - name: Accept Android licenses
+        run: yes | flutter doctor --android-licenses
+
+      # 🔥 Install required SDK components
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      # ✅ Check setup
       - name: Flutter Doctor
         run: flutter doctor -v
 
-      # ✅ Install dependencies
+      # ✅ Dependencies
       - name: Get dependencies
         run: flutter pub get
 
-      # ✅ Clean build (VERY IMPORTANT)
+      # ✅ Clean
       - name: Clean project
         run: flutter clean
 
-      # ✅ Build APK
+      # 🔥 Build APK (with logs)
       - name: Build APK
         run: flutter build apk --release --verbose
 
-      # ✅ Build AAB (Play Store)
+      # 🔥 Build AAB
       - name: Build App Bundle
         run: flutter build appbundle --release
 
-      # ✅ Upload artifacts
+      # ✅ Upload outputs
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: release-aab
+          name: app-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
