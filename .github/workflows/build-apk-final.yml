@@ -1,0 +1,63 @@
+name: Build APK Final
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+        cache: true
+
+    - name: Fix AGP Version (Critical Fix)
+      run: |
+        cd android
+        sed -i 's/id("com.android.application") version "8.1.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+        sed -i 's/id("com.android.application") version "8.2.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+        sed -i 's/id("com.android.application") version "9.0.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+        echo "Fixed AGP version to 8.0.2"
+
+    - name: Install dependencies
+      run: |
+        flutter pub get
+
+    - name: Build APK
+      run: |
+        flutter clean
+        flutter pub get
+        flutter build apk --release
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: zingify-final-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+        retention-days: 30
+
+    - name: Build App Bundle
+      run: |
+        flutter build appbundle --release
+
+    - name: Upload App Bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: zingify-final-aab
+        path: build/app/outputs/bundle/release/app-release.aab
+        retention-days: 30

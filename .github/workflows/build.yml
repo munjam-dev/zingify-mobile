@@ -1,41 +1,54 @@
-name: Build APK
+name: Fix Build Zingify
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      JAVA_HOME: /usr/lib/jvm/temurin-17-jdk-amd64
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: 'stable'
-        cache: true
+      # 🔥 CRITICAL FIX (your main issue)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          cache: true
 
-    - name: Accept licenses
-      run: yes | flutter doctor --android-licenses
+      - name: Accept licenses
+        run: yes | flutter doctor --android-licenses
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install Android SDK
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-    - name: Build APK
-      run: flutter build apk --release
+      - name: Doctor
+        run: flutter doctor -v
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-apk
-        path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Get deps
+        run: flutter pub get
+
+      - name: Clean
+        run: flutter clean
+
+      - name: Build APK
+        run: flutter build apk --release --verbose
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
