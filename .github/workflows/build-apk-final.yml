@@ -1,12 +1,9 @@
-name: Build APK Fixed
+name: Build APK Final
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -20,7 +17,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21'
 
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -42,7 +39,7 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: zingify-apk
+        name: zingify-final-apk
         path: build/app/outputs/flutter-apk/app-release.apk
         retention-days: 30
 
@@ -53,6 +50,6 @@ jobs:
     - name: Upload App Bundle
       uses: actions/upload-artifact@v4
       with:
-        name: zingify-aab
+        name: zingify-final-aab
         path: build/app/outputs/bundle/release/app-release.aab
         retention-days: 30
