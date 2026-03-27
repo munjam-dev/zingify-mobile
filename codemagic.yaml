@@ -5,15 +5,27 @@ workflows:
   build-android:
     name: Build Android APK
     environment:
-      flutter: stable
+      flutter: 3.19.0
       xcode: latest
       android_studio: latest
     scripts:
       - name: Install dependencies
         script: |
           flutter pub get
-      - name: Build APK
+      - name: Fix Gradle AGP Issue
         script: |
-          flutter build apk --release
+          cd android
+          # Downgrade AGP to avoid V1/V2 embedding conflict
+          sed -i 's/id("com.android.application") version "8.1.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+          sed -i 's/id("com.android.application") version "8.2.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+          sed -i 's/id("com.android.application") version "9.0.0"/id("com.android.application") version "8.0.2"/g' settings.gradle
+          sed -i 's/id("com.android.application") version "8.1.0"/id("com.android.application") version "8.0.2"/g' app/build.gradle.kts
+          sed -i 's/id("com.android.application") version "8.2.0"/id("com.android.application") version "8.0.2"/g' app/build.gradle.kts
+          sed -i 's/id("com.android.application") version "9.0.0"/id("com.android.application") version "8.0.2"/g' app/build.gradle.kts
+      - name: Clean and Build APK
+        script: |
+          flutter clean
+          flutter pub get
+          flutter build apk --release --no-shrink
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
